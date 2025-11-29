@@ -98,7 +98,7 @@ const checkUpdate = (win) => {
 
   // 等待 3 秒再检查更新，确保窗口准备完成，用户进入系统
   setTimeout(() => {
-    autoUpdater.checkForUpdatesAndNotify().catch()
+    // autoUpdater.checkForUpdatesAndNotify().catch()
   }, 3000)
 }
 

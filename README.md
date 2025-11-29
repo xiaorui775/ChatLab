@@ -38,6 +38,16 @@ pnpm build:linux
 pnpm build:all
 ```
 
+## 备注
+
+- electron 启动/build错误
+
+```bash
+npm install electron-fix -g
+
+electron-fix start # 会自动安装electron依赖
+```
+
 ## License
 
 MIT
