@@ -8,9 +8,9 @@ export const router = createRouter({
       component: () => import('@/pages/index.vue'),
     },
     {
-      path: '/chat/:id',
-      name: 'chat',
-      component: () => import('@/pages/chat.vue'),
+      path: '/group-chat/:id',
+      name: 'group-chat',
+      component: () => import('@/pages/group-chat.vue'),
     },
     {
       path: '/tools',

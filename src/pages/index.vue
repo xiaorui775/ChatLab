@@ -46,7 +46,7 @@ async function handleClickImport() {
   if (!result.success && result.error && result.error !== '未选择文件') {
     importError.value = result.error
   } else if (result.success && chatStore.currentSessionId) {
-    router.push({ name: 'chat', params: { id: chatStore.currentSessionId } })
+    router.push({ name: 'group-chat', params: { id: chatStore.currentSessionId } })
   }
 }
 
@@ -62,7 +62,7 @@ async function handleFileDrop({ paths }: { files: File[]; paths: string[] }) {
   if (!result.success && result.error) {
     importError.value = result.error
   } else if (result.success && chatStore.currentSessionId) {
-    router.push({ name: 'chat', params: { id: chatStore.currentSessionId } })
+    router.push({ name: 'group-chat', params: { id: chatStore.currentSessionId } })
   }
 }
 
