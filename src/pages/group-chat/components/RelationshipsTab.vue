@@ -97,8 +97,10 @@ watch(
       </div>
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- 单向关注（舔狗检测） -->
+        <!-- 单向关注 -->
+        <!-- 有严重BUG，很不准，先隐藏 -->
         <SectionCard
+          class="hidden"
           v-if="mentionAnalysis.oneWay.length > 0"
           title="🐕 单向关注检测"
           :description="`发现 ${mentionAnalysis.oneWay.length} 对单向关注关系（一方 @ 另一方占比 ≥80%）`"
@@ -276,4 +278,3 @@ watch(
     </UModal>
   </div>
 </template>
-

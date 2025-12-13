@@ -25,7 +25,7 @@ function closeModal() {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :ui="{ content: 'max-w-5xl' }">
+  <UModal v-model:open="isOpen" :ui="{ content: 'max-w-5xl z-100' }">
     <template #content>
       <div class="flex flex-col">
         <!-- Header -->

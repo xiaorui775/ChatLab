@@ -64,7 +64,7 @@ async function handleCapture(event: Event) {
       :id="buttonId"
       icon="i-heroicons-camera"
       variant="ghost"
-      color="neutral"
+      color="primary"
       :size="size"
       :loading="isCapturing"
       @click="handleCapture"

@@ -156,18 +156,25 @@ export function useScreenCapture() {
     watermark.textContent = '聊天分析实验室 · chatlab.fun'
     element.appendChild(watermark)
 
-    // 保存原始 display 状态并隐藏指定元素（使用 display: none 完全移除占位）
-    const hiddenElements: { el: HTMLElement; originalDisplay: string }[] = []
+    // 隐藏指定元素（使用临时 class 而不是 inline style，避免恢复问题）
+    const hiddenElements: HTMLElement[] = []
+    const HIDDEN_CLASS = '__capture-hidden__'
+
+    // 注入隐藏样式（如果不存在）
+    let styleTag = document.getElementById('__capture-style__')
+    if (!styleTag) {
+      styleTag = document.createElement('style')
+      styleTag.id = '__capture-style__'
+      styleTag.textContent = `.${HIDDEN_CLASS} { display: none !important; }`
+      document.head.appendChild(styleTag)
+    }
 
     // 隐藏带有 .no-capture class 的元素（通用排除规则）
     const noCaptureElements = element.querySelectorAll('.no-capture')
     noCaptureElements.forEach((el) => {
       const htmlEl = el as HTMLElement
-      hiddenElements.push({
-        el: htmlEl,
-        originalDisplay: htmlEl.style.display,
-      })
-      htmlEl.style.display = 'none'
+      hiddenElements.push(htmlEl)
+      htmlEl.classList.add(HIDDEN_CLASS)
     })
 
     // 隐藏用户指定的选择器元素
@@ -176,24 +183,53 @@ export function useScreenCapture() {
         const elements = document.querySelectorAll(selector)
         elements.forEach((el) => {
           const htmlEl = el as HTMLElement
-          hiddenElements.push({
-            el: htmlEl,
-            originalDisplay: htmlEl.style.display,
-          })
-          htmlEl.style.display = 'none'
+          hiddenElements.push(htmlEl)
+          htmlEl.classList.add(HIDDEN_CLASS)
         })
       }
     }
 
     // 如果需要捕获完整内容，临时移除 overflow 限制
     const fullContent = options?.fullContent !== false
-    const overflowElements: { el: HTMLElement; originalOverflow: string; originalHeight: string }[] = []
+    const overflowElements: { el: HTMLElement; originalOverflow: string; originalHeight: string; originalMaxHeight: string }[] = []
 
     if (fullContent) {
-      // 找到所有有 overflow 限制的祖先元素和目标元素本身
-      let node: HTMLElement | null = element
-      while (node) {
+      // 处理目标元素及其所有子元素的 overflow 和 max-height 限制
+      const elementsWithOverflow = [element, ...Array.from(element.querySelectorAll('*'))] as HTMLElement[]
+      for (const node of elementsWithOverflow) {
         const style = window.getComputedStyle(node)
+        const overflow = style.overflow
+        const overflowY = style.overflowY
+        const maxHeight = style.maxHeight
+
+        if (
+          overflow === 'hidden' ||
+          overflow === 'auto' ||
+          overflow === 'scroll' ||
+          overflowY === 'hidden' ||
+          overflowY === 'auto' ||
+          overflowY === 'scroll' ||
+          (maxHeight !== 'none' && maxHeight !== '0px')
+        ) {
+          overflowElements.push({
+            el: node,
+            originalOverflow: node.style.overflow,
+            originalHeight: node.style.height,
+            originalMaxHeight: node.style.maxHeight,
+          })
+          node.style.overflow = 'visible'
+          node.style.maxHeight = 'none'
+          // 如果有固定高度，也需要临时移除
+          if (style.height !== 'auto' && node.scrollHeight > node.clientHeight) {
+            node.style.height = 'auto'
+          }
+        }
+      }
+
+      // 也处理祖先元素
+      let parent: HTMLElement | null = element.parentElement
+      while (parent) {
+        const style = window.getComputedStyle(parent)
         const overflow = style.overflow
         const overflowY = style.overflowY
         if (
@@ -205,17 +241,14 @@ export function useScreenCapture() {
           overflowY === 'scroll'
         ) {
           overflowElements.push({
-            el: node,
-            originalOverflow: node.style.overflow,
-            originalHeight: node.style.height,
+            el: parent,
+            originalOverflow: parent.style.overflow,
+            originalHeight: parent.style.height,
+            originalMaxHeight: parent.style.maxHeight,
           })
-          node.style.overflow = 'visible'
-          // 如果有固定高度，也需要临时移除
-          if (style.height !== 'auto' && node.scrollHeight > node.clientHeight) {
-            node.style.height = 'auto'
-          }
+          parent.style.overflow = 'visible'
         }
-        node = node.parentElement
+        parent = parent.parentElement
       }
     }
 
@@ -232,16 +265,14 @@ export function useScreenCapture() {
       canvas.style.border = 'none'
     })
 
-    // 修复 Markdown 标题元素在 @zumer/snapdom 中的黑色边框和额外高度问题
+    // 修复 Markdown 标题元素在 @zumer/snapdom 中的黑色边框问题
+    // 注意：不修改 background，以保留渐变文字等效果
     const headingElements: {
       el: HTMLElement
       originalStyles: {
         border: string
         outline: string
         boxShadow: string
-        background: string
-        margin: string
-        padding: string
       }
     }[] = []
     const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6')
@@ -253,18 +284,12 @@ export function useScreenCapture() {
           border: htmlEl.style.border,
           outline: htmlEl.style.outline,
           boxShadow: htmlEl.style.boxShadow,
-          background: htmlEl.style.background,
-          margin: htmlEl.style.margin,
-          padding: htmlEl.style.padding,
         },
       })
-      // 清除所有可能导致 snapdom 渲染问题的样式
+      // 只清除边框相关样式，保留 background/margin/padding
       htmlEl.style.border = 'none'
       htmlEl.style.outline = 'none'
       htmlEl.style.boxShadow = 'none'
-      htmlEl.style.background = 'transparent'
-      htmlEl.style.margin = '0.5em 0'
-      htmlEl.style.padding = '0'
     })
 
     // 修复 Markdown 列表元素在 @zumer/snapdom 中的渲染问题
@@ -408,9 +433,6 @@ export function useScreenCapture() {
         el.style.border = originalStyles.border
         el.style.outline = originalStyles.outline
         el.style.boxShadow = originalStyles.boxShadow
-        el.style.background = originalStyles.background
-        el.style.margin = originalStyles.margin
-        el.style.padding = originalStyles.padding
       }
       // 恢复列表元素样式并移除手动添加的前缀（@zumer/snapdom bug workaround）
       for (const { el, originalStyles, addedPrefixes } of listElements) {
@@ -426,13 +448,14 @@ export function useScreenCapture() {
         }
       }
       // 恢复 overflow 设置
-      for (const { el, originalOverflow, originalHeight } of overflowElements) {
+      for (const { el, originalOverflow, originalHeight, originalMaxHeight } of overflowElements) {
         el.style.overflow = originalOverflow
         el.style.height = originalHeight
+        el.style.maxHeight = originalMaxHeight
       }
-      // 恢复隐藏元素的 display
-      for (const { el, originalDisplay } of hiddenElements) {
-        el.style.display = originalDisplay
+      // 恢复隐藏元素
+      for (const el of hiddenElements) {
+        el.classList.remove('__capture-hidden__')
       }
       isCapturing.value = false
     }

@@ -67,9 +67,11 @@ export function getMentionAnalysis(sessionId: string, filter?: TimeFilter): any 
 
   let whereClause = clause
   if (whereClause.includes('WHERE')) {
-    whereClause += " AND COALESCE(m.account_name, '') != '系统消息' AND msg.type = 0 AND msg.content IS NOT NULL AND msg.content LIKE '%@%'"
+    whereClause +=
+      " AND COALESCE(m.account_name, '') != '系统消息' AND msg.type = 0 AND msg.content IS NOT NULL AND msg.content LIKE '%@%'"
   } else {
-    whereClause = " WHERE COALESCE(m.account_name, '') != '系统消息' AND msg.type = 0 AND msg.content IS NOT NULL AND msg.content LIKE '%@%'"
+    whereClause =
+      " WHERE COALESCE(m.account_name, '') != '系统消息' AND msg.type = 0 AND msg.content IS NOT NULL AND msg.content LIKE '%@%'"
   }
 
   const messages = db
@@ -151,7 +153,7 @@ export function getMentionAnalysis(sessionId: string, filter?: TimeFilter): any 
   }
   topMentioned.sort((a, b) => b.count - a.count)
 
-  // 6. 检测单向关注（舔狗检测）
+  // 6. 检测单向关注
   // 条件：A @ B 的比例 >= 80%（即 B @ A / A @ B < 20%）
   const oneWay: any[] = []
   const processedPairs = new Set<string>()
@@ -500,4 +502,3 @@ export function getLaughAnalysis(sessionId: string, filter?: TimeFilter, keyword
     groupLaughRate: Math.round((totalLaughs / totalMessages) * 10000) / 100,
   }
 }
-

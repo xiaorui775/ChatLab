@@ -560,7 +560,7 @@ export interface MentionPair {
 }
 
 /**
- * 单向关注（舔狗检测）
+ * 单向关注
  */
 export interface OneWayMention {
   fromMemberId: number
@@ -606,7 +606,7 @@ export interface MentionAnalysis {
   topMentioners: MentionRankItem[]
   /** 被 @ 最多的人排行 */
   topMentioned: MentionRankItem[]
-  /** 单向关注列表（舔狗检测） */
+  /** 单向关注列表 */
   oneWay: OneWayMention[]
   /** 双向奔赴列表（CP检测） */
   twoWay: TwoWayMention[]

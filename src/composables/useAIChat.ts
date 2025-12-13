@@ -139,7 +139,7 @@ export function useAIChat(
       messages.value.push({
         id: generateId('error'),
         role: 'assistant',
-        content: '⚠️ 请先配置 AI 服务。点击左下角「设置」按钮前往「AI模型Tab」进行配置。',
+        content: '⚠️ 请先配置 AI 服务。点击左下角「设置」按钮前往「模型配置Tab」进行配置。',
         timestamp: Date.now(),
       })
       return

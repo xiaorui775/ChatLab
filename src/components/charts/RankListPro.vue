@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import RankList from './RankList.vue'
 import type { RankItem } from './RankList.vue'
+import CaptureButton from '@/components/common/CaptureButton.vue'
 
 interface Props {
   /** 完整的排行数据 */
@@ -24,6 +25,10 @@ const props = withDefaults(defineProps<Props>(), {
 // 控制弹窗
 const isOpen = ref(false)
 
+// 截屏相关 ref
+const cardRef = ref<HTMLElement | null>(null)
+const modalBodyRef = ref<HTMLElement | null>(null)
+
 // Top N 数据
 const topNData = computed(() => {
   return props.members.slice(0, props.topN)
@@ -36,28 +41,40 @@ const showViewAll = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+  <div ref="cardRef" class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
     <div class="flex items-center justify-between border-b border-gray-200 px-5 py-3 dark:border-gray-800">
       <div>
-        <h3 class="font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
+        <h3 class="font-semibold text-gray-900 whitespace-nowrap dark:text-white">{{ title }}</h3>
         <p v-if="description" class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ description }}</p>
       </div>
 
-      <!-- 完整排行榜 Dialog -->
-      <UModal v-model:open="isOpen" :ui="{ content: 'md:w-full max-w-3xl' }">
-        <UButton v-if="showViewAll" icon="i-heroicons-list-bullet" variant="ghost">查看完整排行</UButton>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-            <span class="text-sm text-gray-500">（共 {{ members.length }} 位成员）</span>
-          </div>
-        </template>
-        <template #body>
-          <div class="max-h-[60vh] overflow-y-auto">
-            <RankList :members="members" :unit="unit" />
-          </div>
-        </template>
-      </UModal>
+      <div class="no-capture flex items-center gap-1">
+        <!-- 卡片截屏按钮 -->
+        <CaptureButton tooltip="截取当前卡片" size="xs" type="element" :target-element="cardRef" />
+
+        <!-- 完整排行榜 Dialog -->
+        <UModal v-model:open="isOpen" :ui="{ content: 'md:w-full max-w-3xl' }">
+          <UButton v-if="showViewAll" icon="i-heroicons-list-bullet" variant="ghost">完整排行</UButton>
+          <template #content>
+            <div ref="modalBodyRef" class="section-content flex flex-col">
+              <!-- Header -->
+              <div
+                class="flex w-full items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+              >
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-semibold text-gray-900 whitespace-nowrap dark:text-white">{{ title }}</h3>
+                  <span class="text-sm text-gray-500">（共 {{ members.length }} 位成员）</span>
+                </div>
+                <CaptureButton tooltip="截取完整排行" size="xs" type="element" :target-element="modalBodyRef" />
+              </div>
+              <!-- Body -->
+              <div class="max-h-[60vh] overflow-y-auto">
+                <RankList :members="members" :unit="unit" />
+              </div>
+            </div>
+          </template>
+        </UModal>
+      </div>
     </div>
 
     <RankList :members="topNData" :unit="unit" />
