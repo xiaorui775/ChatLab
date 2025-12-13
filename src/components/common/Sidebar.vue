@@ -176,7 +176,7 @@ function isPrivateChat(session: AnalysisSession): boolean {
           variant="ghost"
           @click="router.push({ name: 'tools' })"
         >
-          <UIcon name="i-heroicons-squares-2x2" class="h-5 w-5 shrink-0" :class="[isCollapsed ? '' : 'mr-2']" />
+          <UIcon name="i-heroicons-wrench-screwdriver" class="h-4 w-4 shrink-0" :class="[isCollapsed ? '' : 'mr-2']" />
           <span v-if="!isCollapsed" class="truncate">实用工具</span>
         </UButton>
       </UTooltip>
@@ -231,9 +231,8 @@ function isPrivateChat(session: AnalysisSession): boolean {
                     isCollapsed ? '' : 'mr-3',
                   ]"
                 >
-                  <!-- 私聊显示用户图标，群聊显示首字母 -->
-                  <UIcon v-if="isPrivateChat(session)" name="i-heroicons-user" class="h-4 w-4" />
-                  <template v-else>{{ session.name ? session.name.charAt(0) : '?' }}</template>
+                  <!-- 私聊和群聊都显示名字首字母 -->
+                  {{ session.name ? session.name.charAt(0) : '?' }}
                 </div>
 
                 <!-- Session Info -->

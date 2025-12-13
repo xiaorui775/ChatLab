@@ -10,6 +10,7 @@ import AITab from '@/components/analysis/AITab.vue'
 import OverviewTab from './components/OverviewTab.vue'
 import QuotesTab from './components/QuotesTab.vue'
 import MemberTab from './components/MemberTab.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -217,29 +218,14 @@ onMounted(() => {
     <!-- Content -->
     <template v-else-if="session">
       <!-- Header -->
-      <div class="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
-        <div class="flex items-center justify-between">
-          <!-- Session Info -->
-          <div class="flex items-center gap-3">
-            <div
-              class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-400 to-pink-600"
-            >
-              <UIcon name="i-heroicons-user" class="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
-                {{ session.name }}
-              </h1>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ dateRangeText }}，共 {{ selectedYear ? filteredMessageCount : session.messageCount }} 条消息
-              </p>
-            </div>
-          </div>
-        </div>
-
+      <PageHeader
+        :title="session.name"
+        :description="`${dateRangeText}，共 ${selectedYear ? filteredMessageCount : session.messageCount} 条消息`"
+        icon="i-heroicons-user"
+      >
         <!-- Tabs -->
         <div class="mt-4 flex items-center justify-between gap-4">
-          <div class="flex flex-shrink-0 items-center gap-1 overflow-x-auto scrollbar-hide">
+          <div class="flex shrink-0 items-center gap-1 overflow-x-auto scrollbar-hide">
             <button
               v-for="tab in tabs"
               :key="tab.id"
@@ -261,10 +247,10 @@ onMounted(() => {
             v-model="selectedYear"
             :items="yearOptions"
             size="sm"
-            class="min-w-0 flex-shrink"
+            class="min-w-0 shrink"
           />
         </div>
-      </div>
+      </PageHeader>
 
       <!-- Tab Content -->
       <div class="relative flex-1 overflow-y-auto">

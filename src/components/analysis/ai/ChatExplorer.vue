@@ -325,7 +325,7 @@ watch(
         </div>
 
         <!-- 输入框区域 -->
-        <div class="p-4 pt-0">
+        <div class="px-4 pb-2">
           <div class="mx-auto max-w-3xl">
             <ChatInput
               :disabled="isAIThinking"
@@ -335,7 +335,7 @@ watch(
             />
 
             <!-- 底部状态栏 -->
-            <div class="mt-2 flex items-center justify-between px-1">
+            <div class="flex items-center justify-between px-1">
               <!-- 左侧：预设选择器 -->
               <UPopover v-model:open="isPresetPopoverOpen" :ui="{ content: 'p-0' }">
                 <button
@@ -384,7 +384,7 @@ watch(
                   :class="[hasLLMConfig ? 'text-gray-400' : 'text-amber-500 font-medium']"
                 >
                   <span class="h-1.5 w-1.5 rounded-full" :class="[hasLLMConfig ? 'bg-green-500' : 'bg-amber-500']" />
-                  {{ hasLLMConfig ? '服务已连接' : '请在全局设置中配置 AI 服务' }}
+                  {{ hasLLMConfig ? 'AI 已连接' : '请在全局设置中配置 AI 服务' }}
                 </div>
               </div>
             </div>
