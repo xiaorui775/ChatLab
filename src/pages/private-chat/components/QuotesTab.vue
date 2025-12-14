@@ -25,7 +25,7 @@ const activeSubTab = ref('catchphrase')
 <template>
   <div class="flex h-full flex-col">
     <!-- 子 Tab 导航 -->
-    <SubTabs v-model="activeSubTab" :items="subTabs" />
+    <SubTabs v-model="activeSubTab" :items="subTabs" persist-key="quotesTab" />
 
     <!-- 子 Tab 内容 -->
     <div class="flex-1 min-h-0 overflow-auto">

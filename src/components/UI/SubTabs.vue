@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 /**
  * 轻量级子标签页组件
  * 适用于页面内部的二级导航,使用原生样式
+ * 支持通过 persistKey 将选中状态同步到 URL 查询参数
  */
 interface TabItem {
   id: string
@@ -14,6 +16,8 @@ interface TabItem {
 interface Props {
   modelValue: string
   items: TabItem[]
+  /** 持久化 key，设置后会将当前 tab 状态同步到 URL 查询参数 */
+  persistKey?: string
 }
 
 interface Emits {
@@ -23,6 +27,9 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const route = useRoute()
+const router = useRouter()
 
 // 计算内部值
 const activeTab = computed({
@@ -37,6 +44,33 @@ const activeTab = computed({
 const handleTabClick = (tabId: string) => {
   activeTab.value = tabId
 }
+
+// 从 URL 查询参数恢复 tab 状态
+onMounted(() => {
+  if (props.persistKey) {
+    const savedTab = route.query[props.persistKey] as string
+    // 验证 savedTab 是否在 items 中存在
+    if (savedTab && props.items.some((item) => item.id === savedTab)) {
+      activeTab.value = savedTab
+    }
+  }
+})
+
+// 监听 tab 变化，同步到 URL 查询参数
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (props.persistKey && newValue) {
+      // 使用 replace 而不是 push，避免产生大量历史记录
+      router.replace({
+        query: {
+          ...route.query,
+          [props.persistKey]: newValue,
+        },
+      })
+    }
+  }
+)
 </script>
 
 <template>

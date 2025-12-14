@@ -246,11 +246,6 @@ function getProgressDetail(): string {
             </template>
           </FileDropZone>
 
-          <!-- Supported Formats Text -->
-          <p class="text-sm text-gray-400 dark:text-gray-500">
-            支持 QQ、微信、Discord、Snapchat、Reddit、TikTok 等聊天记录
-          </p>
-
           <!-- Error Message -->
           <div
             v-if="importError"

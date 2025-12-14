@@ -196,23 +196,24 @@ function getSessionAvatarText(session: AnalysisSession): string {
     </div>
 
     <!-- Session List -->
-    <div class="flex-1 relative min-h-0">
-      <div class="h-full overflow-y-auto px-3">
+    <div class="flex-1 relative min-h-0 px-4 flex flex-col">
+      <!-- 聊天记录标题 - 固定在顶部，不随列表滚动 -->
+      <UTooltip
+        v-if="!isCollapsed && sessions.length > 0"
+        text="右键可删除或重命名聊天记录"
+        :popper="{ placement: 'right' }"
+      >
+        <div class="px-3 mb-2 flex items-center gap-1">
+          <div class="text-sm font-medium text-gray-500">聊天记录</div>
+          <UIcon name="i-heroicons-question-mark-circle" class="size-3.5 text-gray-400" />
+        </div>
+      </UTooltip>
+
+      <!-- 聊天记录列表 - 可滚动区域 -->
+      <div class="flex-1 overflow-y-auto">
         <div v-if="sessions.length === 0 && !isCollapsed" class="py-8 text-center text-sm text-gray-500">暂无记录</div>
 
         <div class="space-y-1 pb-8">
-          <!-- Session List Header - Sticky -->
-          <UTooltip
-            v-if="!isCollapsed && sessions.length > 0"
-            text="右键可删除或重命名聊天记录"
-            :popper="{ placement: 'right' }"
-          >
-            <div class="sticky top-0 bg-gray-50 dark:bg-gray-900 mb-4 px-2 flex items-center gap-1 z-1">
-              <div class="text-sm font-medium text-gray-500">聊天记录</div>
-              <UIcon name="i-heroicons-question-mark-circle" class="size-3.5 text-gray-400" />
-            </div>
-          </UTooltip>
-
           <UTooltip
             v-for="session in sessions"
             :key="session.id"

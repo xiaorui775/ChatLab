@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { SubTabs } from '@/components/UI'
 import ChatExplorer from './ai/ChatExplorer.vue'
 import SQLLabTab from './SQLLabTab.vue'
@@ -12,8 +13,16 @@ const props = defineProps<{
   chatType?: 'group' | 'private'
 }>()
 
-// 子 Tab 配置
-const subTabs = [
+const route = useRoute()
+
+// 判断是否为群聊（通过路由名称判断）
+const isGroupChat = computed(() => route.name === 'group-chat')
+
+// 仅群聊显示的功能 ID
+const groupOnlyTabs = ['mbti', 'cyber-friend', 'campus']
+
+// 所有子 Tab 配置
+const allSubTabs = [
   { id: 'chat-explorer', label: '对话式探索', icon: 'i-heroicons-chat-bubble-left-ellipsis' },
   { id: 'sql-lab', label: 'SQL实验室', icon: 'i-heroicons-command-line' },
   {
@@ -42,6 +51,16 @@ const subTabs = [
   },
 ]
 
+// 根据聊天类型过滤显示的子 Tab
+const subTabs = computed(() => {
+  if (isGroupChat.value) {
+    // 群聊显示所有 Tab
+    return allSubTabs
+  }
+  // 私聊过滤掉群聊专属功能
+  return allSubTabs.filter((tab) => !groupOnlyTabs.includes(tab.id))
+})
+
 const activeSubTab = ref('chat-explorer')
 
 // ChatExplorer 组件引用
@@ -61,7 +80,7 @@ defineExpose({
 <template>
   <div class="flex h-full flex-col">
     <!-- 子 Tab 导航 -->
-    <SubTabs v-model="activeSubTab" :items="subTabs" />
+    <SubTabs v-model="activeSubTab" :items="subTabs" persist-key="aiTab" />
 
     <!-- 子 Tab 内容 -->
     <div class="flex-1 min-h-0 overflow-hidden">

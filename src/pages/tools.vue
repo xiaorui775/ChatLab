@@ -16,7 +16,7 @@ const activeTab = ref('merge')
     <PageHeader title="实用工具" description="提供聊天记录处理的实用工具" icon="i-heroicons-wrench-screwdriver" />
 
     <!-- Tabs -->
-    <SubTabs v-model="activeTab" :items="tabs" />
+    <SubTabs v-model="activeTab" :items="tabs" persist-key="toolTab" />
 
     <!-- Tab Content -->
     <div class="flex-1 overflow-auto p-6">
