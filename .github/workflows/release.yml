@@ -136,6 +136,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史用于生成 changelog
+
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
@@ -151,11 +156,77 @@ jobs:
       - name: List files
         run: ls -la dist/
 
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          # 获取当前版本号
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            CURRENT_VERSION="v${{ inputs.version }}"
+          else
+            CURRENT_VERSION="${{ github.ref_name }}"
+          fi
+          VERSION_NUMBER="${CURRENT_VERSION#v}"
+
+          echo "Current version: $CURRENT_VERSION"
+
+          # 获取上一个 tag
+          PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_VERSION}$" | head -n 1)
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found, using first commit"
+            COMMIT_RANGE="HEAD"
+          else
+            echo "Previous tag: $PREVIOUS_TAG"
+            COMMIT_RANGE="${PREVIOUS_TAG}..HEAD"
+          fi
+
+          # 生成 release notes
+          {
+            echo "## 更新内容"
+            echo ""
+
+            # 提取 feat commits
+            FEATS=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^feat" 2>/dev/null | sed 's/^feat[:(]//' | sed 's/^[^)]*): //' | sed 's/^/- ✨ /')
+            if [ -n "$FEATS" ]; then
+              echo "### 新功能"
+              echo "$FEATS"
+              echo ""
+            fi
+
+            # 提取 fix commits
+            FIXES=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^fix" 2>/dev/null | sed 's/^fix[:(]//' | sed 's/^[^)]*): //' | sed 's/^/- 🐛 /')
+            if [ -n "$FIXES" ]; then
+              echo "### 修复"
+              echo "$FIXES"
+              echo ""
+            fi
+
+            # 如果没有 feat 和 fix，显示提示
+            if [ -z "$FEATS" ] && [ -z "$FIXES" ]; then
+              echo "- 常规更新和优化"
+              echo ""
+            fi
+
+            echo "---"
+            echo ""
+            echo "## 下载说明"
+            echo ""
+            echo "| 平台 | 文件 |"
+            echo "|------|------|"
+            echo "| Mac 苹果芯片 | \`ChatLab-${VERSION_NUMBER}-arm64.dmg\` |"
+            echo "| Mac Intel 芯片 | \`ChatLab-${VERSION_NUMBER}-x64.dmg\` |"
+            echo "| Windows | \`ChatLab-${VERSION_NUMBER}-setup.exe\` |"
+          } > release_notes.md
+
+          echo "Generated release notes:"
+          cat release_notes.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
           name: ChatLab ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          body_path: release_notes.md
           files: |
             dist/*.exe
             dist/*.dmg

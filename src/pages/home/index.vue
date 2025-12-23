@@ -77,7 +77,7 @@ async function handleFileDrop({ paths }: { files: File[]; paths: string[] }) {
 }
 
 function openTutorial() {
-  window.open('https://chatlab.fun/usage/how-to-export.html', '_blank')
+  window.open('https://chatlab.fun/usage/how-to-export.html?utm_source=app', '_blank')
 }
 
 function getProgressText(): string {
