@@ -185,7 +185,7 @@ jobs:
             echo ""
 
             # 提取 feat commits
-            FEATS=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^feat" 2>/dev/null | sed 's/^feat[:(]//' | sed 's/^[^)]*): //' | sed 's/^/- ✨ /')
+            FEATS=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^feat" 2>/dev/null | sed 's/^feat[:(]//' | sed 's/^[^)]*): //' | sed 's/^/- /')
             if [ -n "$FEATS" ]; then
               echo "### 新功能"
               echo "$FEATS"

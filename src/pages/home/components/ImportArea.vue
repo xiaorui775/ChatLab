@@ -139,11 +139,12 @@ async function handleGoToSession(sessionId: string) {
   await navigateToSession(sessionId)
 }
 
-function openTutorial() {
+// 教程链接：根据语言动态生成
+const tutorialUrl = computed(() => {
   const { locale } = useI18n()
   const langPath = locale.value === 'zh-CN' ? '/cn' : ''
-  window.open(`https://chatlab.fun${langPath}/usage/how-to-export.html?utm_source=app`, '_blank')
-}
+  return `https://chatlab.fun${langPath}/usage/how-to-export.html?utm_source=app`
+})
 
 // 打开最新的导入日志文件
 async function openLatestImportLog() {
@@ -468,7 +469,7 @@ function getFileProgressText(file: BatchFileInfo): string {
       <UButton v-if="hasImportLog" size="xs" @click="openLatestImportLog">{{ t('home.import.viewLog') }}</UButton>
     </div>
 
-    <UButton @click="openTutorial" trailing-icon="i-heroicons-chevron-right-20-solid">
+    <UButton :to="tutorialUrl" target="_blank" trailing-icon="i-heroicons-chevron-right-20-solid">
       {{ t('home.import.tutorial') }}
     </UButton>
   </div>
