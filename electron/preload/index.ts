@@ -184,6 +184,16 @@ const chatApi = {
   },
 
   /**
+   * 获取年份活跃度分布
+   */
+  getYearlyActivity: (
+    sessionId: string,
+    filter?: { startTs?: number; endTs?: number }
+  ): Promise<Array<{ year: number; messageCount: number }>> => {
+    return ipcRenderer.invoke('chat:getYearlyActivity', sessionId, filter)
+  },
+
+  /**
    * 获取消息类型分布
    */
   getMessageTypeDistribution: (

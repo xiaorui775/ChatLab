@@ -324,6 +324,21 @@ export function registerChatHandlers(ctx: IpcContext): void {
   )
 
   /**
+   * 获取年份活跃度分布
+   */
+  ipcMain.handle(
+    'chat:getYearlyActivity',
+    async (_, sessionId: string, filter?: { startTs?: number; endTs?: number }) => {
+      try {
+        return await worker.getYearlyActivity(sessionId, filter)
+      } catch (error) {
+        console.error('获取年份活跃度失败：', error)
+        return []
+      }
+    }
+  )
+
+  /**
    * 获取消息类型分布
    */
   ipcMain.handle(

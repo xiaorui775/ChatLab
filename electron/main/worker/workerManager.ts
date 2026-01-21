@@ -225,6 +225,10 @@ export async function getMonthlyActivity(sessionId: string, filter?: any): Promi
   return sendToWorker('getMonthlyActivity', { sessionId, filter })
 }
 
+export async function getYearlyActivity(sessionId: string, filter?: any): Promise<any[]> {
+  return sendToWorker('getYearlyActivity', { sessionId, filter })
+}
+
 export async function getMessageTypeDistribution(sessionId: string, filter?: any): Promise<any[]> {
   return sendToWorker('getMessageTypeDistribution', { sessionId, filter })
 }

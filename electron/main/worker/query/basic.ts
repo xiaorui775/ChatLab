@@ -243,6 +243,37 @@ export function getMonthlyActivity(sessionId: string, filter?: TimeFilter): any[
 }
 
 /**
+ * 获取年份活跃度分布
+ */
+export function getYearlyActivity(sessionId: string, filter?: TimeFilter): any[] {
+  const db = openDatabase(sessionId)
+  if (!db) return []
+
+  const { clause, params } = buildTimeFilter(filter)
+  const clauseWithSystem = buildSystemMessageFilter(clause)
+
+  const rows = db
+    .prepare(
+      `
+      SELECT
+        CAST(strftime('%Y', msg.ts, 'unixepoch', 'localtime') AS INTEGER) as year,
+        COUNT(*) as messageCount
+      FROM message msg
+      JOIN member m ON msg.sender_id = m.id
+      ${clauseWithSystem}
+      GROUP BY year
+      ORDER BY year
+    `
+    )
+    .all(...params) as Array<{ year: number; messageCount: number }>
+
+  return rows.map((r) => ({
+    year: r.year,
+    messageCount: r.messageCount,
+  }))
+}
+
+/**
  * 获取消息类型分布
  */
 export function getMessageTypeDistribution(sessionId: string, filter?: TimeFilter): any[] {

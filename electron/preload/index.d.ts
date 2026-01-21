@@ -79,6 +79,10 @@ interface ChatApi {
   getDailyActivity: (sessionId: string, filter?: TimeFilter) => Promise<DailyActivity[]>
   getWeekdayActivity: (sessionId: string, filter?: TimeFilter) => Promise<WeekdayActivity[]>
   getMonthlyActivity: (sessionId: string, filter?: TimeFilter) => Promise<MonthlyActivity[]>
+  getYearlyActivity: (
+    sessionId: string,
+    filter?: TimeFilter
+  ) => Promise<Array<{ year: number; messageCount: number }>>
   getMessageTypeDistribution: (
     sessionId: string,
     filter?: TimeFilter

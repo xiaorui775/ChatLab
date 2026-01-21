@@ -10,6 +10,7 @@ import CaptureButton from '@/components/common/CaptureButton.vue'
 import UITabs from '@/components/UI/Tabs.vue'
 import AITab from '@/components/analysis/AITab.vue'
 import OverviewTab from './components/OverviewTab.vue'
+import ViewTab from './components/ViewTab.vue'
 import QuotesTab from './components/QuotesTab.vue'
 import MemberTab from './components/MemberTab.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -52,9 +53,10 @@ const availableYears = ref<number[]>([])
 const selectedYear = ref<number>(0) // 0 表示全部
 const isInitialLoad = ref(true) // 用于跳过初始加载时的 watch 触发，并控制首屏加载状态
 
-// Tab 配置 - 私聊有总览、语录、成员、AI实验室（趋势已合并到总览）
+// Tab 配置 - 私聊有总览、视图、语录、成员、AI实验室
 const tabs = [
   { id: 'overview', labelKey: 'analysis.tabs.overview', icon: 'i-heroicons-chart-pie' },
+  { id: 'view', labelKey: 'analysis.tabs.view', icon: 'i-heroicons-presentation-chart-bar' },
   { id: 'quotes', labelKey: 'analysis.tabs.quotes', icon: 'i-heroicons-chat-bubble-left-right' },
   { id: 'member', labelKey: 'analysis.tabs.member', icon: 'i-heroicons-user-group' },
   { id: 'ai', labelKey: 'analysis.tabs.ai', icon: 'i-heroicons-sparkles' },
@@ -348,6 +350,12 @@ onMounted(() => {
               :selected-year="selectedYear"
               :filtered-message-count="filteredMessageCount"
               :filtered-member-count="filteredMemberCount"
+              :time-filter="timeFilter"
+            />
+            <ViewTab
+              v-else-if="activeTab === 'view'"
+              :key="'view-' + selectedYear"
+              :session-id="currentSessionId!"
               :time-filter="timeFilter"
             />
             <QuotesTab
