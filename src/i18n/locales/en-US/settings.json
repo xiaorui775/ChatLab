@@ -3,8 +3,8 @@
   "tabs": {
     "basic": "General",
     "ai": "AI Settings",
-    "aiConfig": "AI Models",
-    "aiRAG": "Semantic Search",
+    "aiConfig": "Chat Model",
+    "aiRAG": "Vector Model",
     "aiPrompt": "Chat Config",
     "aiPreset": "Prompts",
     "storage": "Data & Storage",
@@ -47,7 +47,7 @@
     }
   },
   "aiConfig": {
-    "title": "Model Configuration",
+    "title": "Chat Model",
     "loading": "Loading...",
     "inUse": "Active",
     "defaultModel": "Default Model",
@@ -211,8 +211,8 @@
     }
   },
   "embedding": {
-    "title": "Semantic Search",
-    "description": "Uses embedding vectors to understand question meaning, suitable for analyzing relationships, emotions, and abstract topics",
+    "title": "Vector Model",
+    "description": "Uses embedding vectors to understand question meaning, enables AI to perform semantic search",
     "configList": "Embedding Configs",
     "addConfig": "Add Config",
     "editConfig": "Edit Config",
@@ -223,8 +223,8 @@
     "configName": "Config Name",
     "configNamePlaceholder": "e.g. Ollama Embedding",
     "apiSource": "API Source",
-    "apiSourceHint": "\"Reuse AI Config\" will use the endpoint and key from the active AI model config",
-    "reuseLLM": "Reuse AI Config",
+    "apiSourceHint": "\"Reuse Chat Model\" will use the endpoint and key from the active chat model",
+    "reuseLLM": "Reuse Chat Model",
     "customAPI": "Custom API",
     "model": "Model Name",
     "modelPlaceholder": "e.g. nomic-embed-text",

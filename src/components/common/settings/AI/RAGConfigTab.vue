@@ -26,7 +26,6 @@ const editingConfig = ref<EmbeddingServiceConfigDisplay | null>(null)
 const isLoading = computed(() => embeddingStore.isLoading)
 const configs = computed(() => embeddingStore.configs)
 const activeConfigId = computed(() => embeddingStore.activeConfigId)
-const enabled = computed(() => embeddingStore.enabled)
 const hasConfig = computed(() => embeddingStore.hasConfig)
 const isMaxConfigs = computed(() => embeddingStore.isMaxConfigs)
 const vectorStoreStats = computed(() => embeddingStore.vectorStoreStats)
@@ -48,12 +47,6 @@ function openEditModal(config: EmbeddingServiceConfigDisplay) {
 
 async function handleSaved() {
   await embeddingStore.refreshConfigs()
-  emit('config-changed')
-}
-
-async function handleToggleEnabled() {
-  const newValue = !enabled.value
-  await embeddingStore.setEnabled(newValue)
   emit('config-changed')
 }
 
@@ -90,14 +83,11 @@ onMounted(() => {
 
   <!-- 配置内容 -->
   <div v-else class="space-y-6">
-    <!-- 标题和启用开关 -->
-    <div class="flex items-center justify-between">
-      <h4 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-        <UIcon name="i-heroicons-magnifying-glass-circle" class="h-4 w-4 text-emerald-500" />
-        {{ t('settings.embedding.title') }}
-      </h4>
-      <USwitch :model-value="enabled" @update:model-value="handleToggleEnabled" />
-    </div>
+    <!-- 标题 -->
+    <h4 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+      <UIcon name="i-heroicons-magnifying-glass-circle" class="h-4 w-4 text-emerald-500" />
+      {{ t('settings.embedding.title') }}
+    </h4>
 
     <p class="text-xs text-gray-500 dark:text-gray-400">
       {{ t('settings.embedding.description') }}

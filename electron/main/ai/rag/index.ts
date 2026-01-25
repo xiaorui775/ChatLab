@@ -21,7 +21,6 @@ export {
   updateEmbeddingConfig,
   deleteEmbeddingConfig,
   setActiveEmbeddingConfig,
-  setEmbeddingEnabled,
   isEmbeddingEnabled,
   getActiveEmbeddingConfigId,
   // 旧版兼容

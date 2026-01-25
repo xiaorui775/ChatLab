@@ -466,7 +466,6 @@ interface EmbeddingApi {
   getConfig: (id: string) => Promise<EmbeddingServiceConfig | null>
   getActiveConfigId: () => Promise<string | null>
   isEnabled: () => Promise<boolean>
-  setEnabled: (enabled: boolean) => Promise<{ success: boolean; error?: string }>
   addConfig: (
     config: Omit<EmbeddingServiceConfig, 'id' | 'createdAt' | 'updatedAt'>
   ) => Promise<{ success: boolean; config?: EmbeddingServiceConfig; error?: string }>

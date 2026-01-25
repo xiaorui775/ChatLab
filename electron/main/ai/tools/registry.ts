@@ -918,6 +918,127 @@ async function getSessionMessagesExecutor(
   }
 }
 
+// ==================== 摘要查询工具 ====================
+
+/**
+ * 获取会话摘要列表
+ */
+const getSessionSummariesTool: ToolDefinition = {
+  type: 'function',
+  function: {
+    name: 'get_session_summaries',
+    description: `获取会话摘要列表，快速了解群聊历史讨论的主题。
+
+适用场景：
+1. 了解群里最近在聊什么话题
+2. 按关键词搜索讨论过的话题
+3. 概览性问题如"群里有没有讨论过旅游"
+
+返回的摘要是对每个会话的简短总结，可以帮助快速定位感兴趣的会话，然后用 get_session_messages 获取详情。`,
+    parameters: {
+      type: 'object',
+      properties: {
+        keywords: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '在摘要中搜索的关键词列表（OR 逻辑匹配）',
+        },
+        limit: {
+          type: 'number',
+          description: '返回会话数量限制，默认 20',
+        },
+        year: {
+          type: 'number',
+          description: '筛选指定年份的会话',
+        },
+        month: {
+          type: 'number',
+          description: '筛选指定月份的会话（1-12）',
+        },
+        day: {
+          type: 'number',
+          description: '筛选指定日期的会话（1-31）',
+        },
+        start_time: {
+          type: 'string',
+          description: '开始时间，格式 "YYYY-MM-DD HH:mm"',
+        },
+        end_time: {
+          type: 'string',
+          description: '结束时间，格式 "YYYY-MM-DD HH:mm"',
+        },
+      },
+    },
+  },
+}
+
+async function getSessionSummariesExecutor(
+  params: {
+    keywords?: string[]
+    limit?: number
+    year?: number
+    month?: number
+    day?: number
+    start_time?: string
+    end_time?: string
+  },
+  context: ToolContext
+): Promise<unknown> {
+  const { sessionId, timeFilter: contextTimeFilter, locale } = context
+  const limit = params.limit || 20
+
+  // 解析时间参数
+  const effectiveTimeFilter = parseExtendedTimeParams(params, contextTimeFilter)
+
+  // 获取会话列表（带摘要）
+  const sessions = await workerManager.getSessionSummaries(sessionId, {
+    limit: limit * 2, // 多查询一些以便过滤
+    timeFilter: effectiveTimeFilter,
+  })
+
+  if (!sessions || sessions.length === 0) {
+    return {
+      message: isChineseLocale(locale)
+        ? '未找到带摘要的会话。可能还没有生成摘要，请在会话时间线中点击"批量生成"按钮。'
+        : 'No sessions with summaries found. Summaries may not have been generated yet.',
+    }
+  }
+
+  // 按关键词过滤
+  let filteredSessions = sessions
+  if (params.keywords && params.keywords.length > 0) {
+    const keywords = params.keywords.map((k) => k.toLowerCase())
+    filteredSessions = sessions.filter((s) =>
+      keywords.some((keyword) => s.summary?.toLowerCase().includes(keyword))
+    )
+  }
+
+  // 只返回有摘要的
+  filteredSessions = filteredSessions.filter((s) => s.summary)
+
+  // 限制数量
+  const limitedSessions = filteredSessions.slice(0, limit)
+
+  const localeStr = isChineseLocale(locale) ? 'zh-CN' : 'en-US'
+
+  return {
+    total: filteredSessions.length,
+    returned: limitedSessions.length,
+    timeRange: formatTimeRange(effectiveTimeFilter, locale),
+    sessions: limitedSessions.map((s) => {
+      const startTime = new Date(s.startTs * 1000).toLocaleString(localeStr)
+      const endTime = new Date(s.endTs * 1000).toLocaleString(localeStr)
+      return {
+        sessionId: s.id,
+        time: `${startTime} ~ ${endTime}`,
+        messageCount: s.messageCount,
+        participants: s.participants,
+        summary: s.summary,
+      }
+    }),
+  }
+}
+
 // ==================== 语义搜索工具 ====================
 
 /**
@@ -1062,4 +1183,5 @@ registerTool(getConversationBetweenTool, getConversationBetweenExecutor)
 registerTool(getMessageContextTool, getMessageContextExecutor)
 registerTool(searchSessionsTool, searchSessionsExecutor)
 registerTool(getSessionMessagesTool, getSessionMessagesExecutor)
+registerTool(getSessionSummariesTool, getSessionSummariesExecutor)
 registerTool(semanticSearchMessagesTool, semanticSearchMessagesExecutor)

@@ -631,6 +631,96 @@ export async function getSessionMessages(
   return sendToWorker('getSessionMessages', { sessionId, chatSessionId, limit })
 }
 
+/**
+ * 会话摘要结果类型（用于 AI 工具）
+ */
+export interface SessionSummaryItem {
+  id: number
+  startTs: number
+  endTs: number
+  messageCount: number
+  participants: string[]
+  summary: string | null
+}
+
+/**
+ * 获取带摘要的会话列表（用于 AI 工具）
+ * 直接在主进程中查询，不通过 Worker
+ */
+export async function getSessionSummaries(
+  sessionId: string,
+  options: {
+    limit?: number
+    timeFilter?: { startTs: number; endTs: number }
+  }
+): Promise<SessionSummaryItem[]> {
+  const { openDatabase } = await import('../database/core')
+  const db = openDatabase(sessionId, true)
+  if (!db) {
+    return []
+  }
+
+  const { limit = 50, timeFilter } = options
+
+  let sql = `
+    SELECT
+      cs.id,
+      cs.start_ts as startTs,
+      cs.end_ts as endTs,
+      cs.message_count as messageCount,
+      cs.summary
+    FROM chat_session cs
+    WHERE cs.summary IS NOT NULL AND cs.summary != ''
+  `
+  const params: unknown[] = []
+
+  if (timeFilter) {
+    sql += ' AND cs.start_ts >= ? AND cs.start_ts <= ?'
+    params.push(timeFilter.startTs, timeFilter.endTs)
+  }
+
+  sql += ' ORDER BY cs.start_ts DESC LIMIT ?'
+  params.push(limit)
+
+  try {
+    const sessions = db.prepare(sql).all(...params) as Array<{
+      id: number
+      startTs: number
+      endTs: number
+      messageCount: number
+      summary: string | null
+    }>
+
+    // 为每个会话获取参与者
+    const results: SessionSummaryItem[] = []
+    for (const session of sessions) {
+      const participantsSql = `
+        SELECT DISTINCT COALESCE(mb.group_nickname, mb.account_name, mb.platform_id) as name
+        FROM message_context mc
+        JOIN message m ON m.id = mc.message_id
+        JOIN member mb ON mb.id = m.sender_id
+        WHERE mc.session_id = ?
+        LIMIT 10
+      `
+      const participants = db.prepare(participantsSql).all(session.id) as Array<{ name: string }>
+
+      results.push({
+        id: session.id,
+        startTs: session.startTs,
+        endTs: session.endTs,
+        messageCount: session.messageCount,
+        participants: participants.map((p) => p.name),
+        summary: session.summary,
+      })
+    }
+
+    return results
+  } catch (error) {
+    console.error('获取会话摘要失败:', error)
+    return []
+  }
+}
+
 // ==================== 自定义筛选 API ====================
 
 /**

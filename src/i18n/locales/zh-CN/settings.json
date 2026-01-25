@@ -3,8 +3,8 @@
   "tabs": {
     "basic": "基础设置",
     "ai": "AI 设置",
-    "aiConfig": "模型配置",
-    "aiRAG": "语义搜索",
+    "aiConfig": "对话模型",
+    "aiRAG": "向量模型",
     "aiPrompt": "对话配置",
     "aiPreset": "提示词配置",
     "storage": "数据和存储",
@@ -47,7 +47,7 @@
     }
   },
   "aiConfig": {
-    "title": "模型配置",
+    "title": "对话模型",
     "loading": "加载中...",
     "inUse": "使用中",
     "defaultModel": "默认模型",
@@ -211,8 +211,8 @@
     }
   },
   "embedding": {
-    "title": "语义搜索",
-    "description": "通过 Embedding 向量相似度理解问题含义，适合分析关系、情感、抽象话题等场景",
+    "title": "向量模型",
+    "description": "通过 Embedding 向量相似度理解问题含义，启用后 AI 可进行语义搜索",
     "configList": "Embedding 配置",
     "addConfig": "添加配置",
     "editConfig": "编辑配置",
@@ -223,8 +223,8 @@
     "configName": "配置名称",
     "configNamePlaceholder": "如：Ollama Embedding",
     "apiSource": "API 来源",
-    "apiSourceHint": "「复用 AI 配置」将使用当前激活的 AI 模型配置的端点和密钥",
-    "reuseLLM": "复用 AI 配置",
+    "apiSourceHint": "「复用对话模型」将使用当前激活的对话模型的端点和密钥",
+    "reuseLLM": "复用对话模型",
     "customAPI": "自定义 API",
     "model": "模型名称",
     "modelPlaceholder": "如 nomic-embed-text",

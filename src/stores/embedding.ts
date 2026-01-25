@@ -15,9 +15,6 @@ export const useEmbeddingStore = defineStore('embedding', () => {
   /** 当前激活配置 ID */
   const activeConfigId = ref<string | null>(null)
 
-  /** 是否启用语义搜索 */
-  const enabled = ref(false)
-
   /** 是否正在加载 */
   const isLoading = ref(false)
 
@@ -77,7 +74,6 @@ export const useEmbeddingStore = defineStore('embedding', () => {
       ])
       configs.value = configsData
       activeConfigId.value = activeId
-      enabled.value = isEnabled
       vectorStoreStats.value = stats
     } catch (error) {
       console.error('[Embedding Store] 加载配置失败：', error)
@@ -86,23 +82,6 @@ export const useEmbeddingStore = defineStore('embedding', () => {
     }
   }
 
-  /**
-   * 设置语义搜索启用状态
-   */
-  async function setEnabled(value: boolean): Promise<boolean> {
-    try {
-      const result = await window.embeddingApi.setEnabled(value)
-      if (result.success) {
-        enabled.value = value
-        return true
-      }
-      console.error('[Embedding Store] 设置启用状态失败：', result.error)
-      return false
-    } catch (error) {
-      console.error('[Embedding Store] 设置启用状态失败：', error)
-      return false
-    }
-  }
 
   /**
    * 切换激活配置
@@ -170,7 +149,6 @@ export const useEmbeddingStore = defineStore('embedding', () => {
     // 状态
     configs,
     activeConfigId,
-    enabled,
     isLoading,
     isInitialized,
     vectorStoreStats,
@@ -182,7 +160,6 @@ export const useEmbeddingStore = defineStore('embedding', () => {
     // 方法
     init,
     loadConfigs,
-    setEnabled,
     setActiveConfig,
     deleteConfig,
     clearVectorStore,

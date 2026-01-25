@@ -220,22 +220,13 @@ export function setActiveEmbeddingConfig(id: string): { success: boolean; error?
 }
 
 /**
- * 设置语义搜索启用状态
- */
-export function setEmbeddingEnabled(enabled: boolean): { success: boolean } {
-  const store = loadEmbeddingConfigStore()
-  store.enabled = enabled
-  saveEmbeddingConfigStore(store)
-  logger.info('RAG', `语义搜索 ${enabled ? '已启用' : '已禁用'}`)
-  return { success: true }
-}
-
-/**
  * 检查语义搜索是否启用
+ * 简化逻辑：只要有激活的配置就启用
  */
 export function isEmbeddingEnabled(): boolean {
   const store = loadEmbeddingConfigStore()
-  return store.enabled && store.activeConfigId !== null
+  // 只要有激活的配置就启用，无需额外开关
+  return store.activeConfigId !== null && store.configs.some((c) => c.id === store.activeConfigId)
 }
 
 /**

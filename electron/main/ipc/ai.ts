@@ -710,22 +710,6 @@ export function registerAIHandlers({ win }: IpcContext): void {
   })
 
   /**
-   * 设置语义搜索启用状态
-   */
-  ipcMain.handle('embedding:setEnabled', async (_, enabled: boolean) => {
-    try {
-      rag.setEmbeddingEnabled(enabled)
-      if (!enabled) {
-        await rag.resetEmbeddingService()
-      }
-      return { success: true }
-    } catch (error) {
-      aiLogger.error('IPC', '设置语义搜索状态失败', error)
-      return { success: false, error: String(error) }
-    }
-  })
-
-  /**
    * 添加 Embedding 配置
    */
   ipcMain.handle(

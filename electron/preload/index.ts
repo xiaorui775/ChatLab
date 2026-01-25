@@ -1485,13 +1485,6 @@ const embeddingApi = {
   },
 
   /**
-   * 设置语义搜索启用状态
-   */
-  setEnabled: (enabled: boolean): Promise<{ success: boolean; error?: string }> => {
-    return ipcRenderer.invoke('embedding:setEnabled', enabled)
-  },
-
-  /**
    * 添加 Embedding 配置
    */
   addConfig: (
